@@ -1,0 +1,92 @@
+\documentclass[tikz,border=24pt]{standalone}
+\usetikzlibrary{decorations}
+
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+
+\pgfqkeys{/pgf/decoration}{
+  stipple inverse cumulant/.store in=\pgfStippleC,
+  stipple linear density/.store in=\pgfStippleD,
+  stipple left bound/.store in=\pgfStippleYmax,
+  stipple right bound/.store in=\pgfStippleYmin,
+  stipple radius/.store in=\pgfStippleS,
+  stipple linear density=20/1pt*(.5+.5*(1+cos(\pgfdecoratedangle))/2),
+  stipple left bound=16pt*(.4+.6*(1+cos(\pgfdecoratedangle))/2),
+  stipple right bound={.5*max(\pgflinewidth,\pgfStippleR)},
+  stipple radius=1pt*(rnd)^2*(1-\pgfStippleV)^.15%
+                    *(.7+.3*(1+cos(\pgfdecoratedangle))/2)^2,
+  stipple inverse cumulant=asin(rnd)/90,}
+
+\pgfdeclaredecoration{stipple}{initial}{%
+  \state{initial}[width=0,next state=draw]{%
+    \message{(stippling}
+    {\globaldefs=1\relax\pgfmathsetmacro\pgfStippleTprev{0}}}
+  \state{draw}[width=\pgfdecorationsegmentlength]{%
+    \pgfmathsetmacro\pgfStippleT%
+      {\pgfdecoratedcompleteddistance/\pgfdecoratedpathlength}%
+    \pgfmathsetmacro\pgfStippleN%
+      {1+int(\pgfStippleD*\pgfdecorationsegmentlength)}%
+    \pgfmathloop\ifnum\pgfmathcounter<\pgfStippleN\relax%
+      \pgfmathsetmacro\pgfStippleU{rnd}%
+      \pgfmathsetmacro\pgfStippleV{\pgfStippleC}%
+      \pgfmathsetmacro\pgfStippleR{\pgfStippleS}
+      \pgfmathsetmacro\pgfStippleX%
+        {\pgfStippleU*\pgfdecorationsegmentlength}%
+      \pgfmathsetmacro\pgfStippleY%
+        {\pgfStippleV*(\pgfStippleYmax-\pgfStippleYmin)+\pgfStippleYmin}%
+      \pgfpathcircle{\pgfpoint{\pgfStippleX}{\pgfStippleY}}{\pgfStippleR}%
+    \repeatpgfmathloop
+    \pgfmathparse{floor(10*\pgfStippleTprev)<floor(10*\pgfStippleT)}
+    \if1\pgfmathresult\message{.}\fi
+    {\globaldefs=1\pgfmathsetmacro\pgfStippleTprev{\pgfStippleT}}}%
+  \state{final}{\message{done!)}}}
+
+\tikzset{
+  stipple/.style={
+    decoration={stipple, segment length=1pt, #1},
+    decorate,
+    fill},
+  stip/.style={
+    postaction={stipple={}},
+  },
+}
+
+\begin{document}
+\begin{tikzpicture}
+
+\node [font=\fontsize{12pt}{0}\selectfont] {\scshape a Manifold};
+
+\begin{scope} [ x=1pt, y=1pt, line width=0.8pt, line cap=round, xshift=-180 ]
+  \draw [stip] (262,149) .. controls (247,143) and (225,149) .. (221,160);
+  \draw [stip] (223,156) .. controls (233,162) and (257,154) .. (259,148);
+  \draw [stip] (337, 35) .. controls (317, 21) and (280, 29) .. (267, 50);
+  \draw [stip] (271, 46) .. controls (289, 55) and (326, 41) .. (330, 31);
+  \draw [stip] (185,109) .. controls (164, 91) and (125, 96) .. (112,106);
+  \draw [stip] (116,103) .. controls (119,108) and (127,111) .. (132,112);
+  \draw [stip] (156,114) .. controls (168,113) and (176,109) .. (181,106);
+  \draw [stip] (124, 75) .. controls (118, 62) and (104, 40) .. 
+               ( 75, 40) .. controls ( 50, 40) and ( 32, 52) .. 
+               ( 32, 75) .. controls ( 32,103) and ( 85,150) .. 
+               (108,150) .. controls (126,150) and (132,132) .. 
+               (132,112) .. controls (132,107) and (132,103) .. (131, 99);
+  \draw [stip] (128,135) .. controls (105,130) and ( 88,118) .. 
+               ( 88,102) .. controls ( 88, 90) and (108, 74) .. 
+               (135, 74) .. controls (179, 74) and (183, 81) .. 
+               (195, 81) .. controls (204, 81) and (209, 75) .. 
+               (209, 68) .. controls (209, 59) and (199, 56) .. 
+               (188, 56) .. controls (170, 56) and (161, 62) .. (156, 75);
+  \draw [stip] (154, 97) .. controls (154,123) and (166,148) .. 
+               (183,148) .. controls (199,148) and (219,122) .. 
+               (256,122) .. controls (270,122) and (286,133) .. 
+               (286,146) .. controls (286,185) and (203,190) .. 
+               (164,190) .. controls ( 94,190) and (  0,135) .. 
+               (  0, 65) .. controls (  0, 23) and ( 39,  6) .. 
+               ( 64,  6) .. controls ( 99,  6) and (143, 31) .. 
+               (183, 31) .. controls (236, 31) and (276,  0) .. 
+               (312,  0) .. controls (345,  0) and (359, 12) .. 
+               (359, 34) .. controls (359, 60) and (316, 70) .. 
+               (276, 77) .. controls (217, 88) and (230,127) .. (164,135);
+\end{scope}
+\end{tikzpicture}
+\end{document}
+
