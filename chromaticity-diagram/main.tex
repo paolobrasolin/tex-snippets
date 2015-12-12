@@ -1,0 +1,166 @@
+\documentclass[tikz]{standalone}
+
+\usetikzlibrary{calc}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+
+% ------------------------------------------------------------------- DATASETS
+
+% http://steve.hollasch.net/cgindex/color/freq-rgb.html
+% Spectral stimuli colors - CIE 1931
+% xy coordinates from 390nm to 700nm in steps of 5nm
+% 63 data points
+\pgfplotstableread{spectral.dat}\SpectralLocus
+
+% http://www.vendian.org/mncharity/dir3/blackbody/UnstableURLs/bbr_color.html
+% Blackbody colors - CIE 1931
+% xy coordinates from 1000K to 40000K in steps of 100K
+% 391 data points
+\pgfplotstableread{planckian.dat}\PlanckianLocus
+
+% ---------------------------------------------- sRGB COLORSPACE SPECIFICATION
+
+% http://www.color.org/sRGB.xalter
+
+% CIE chromaticities for ITU-R BT.709 reference primaries
+\def\primariesLoci{
+  (0.6400,0.3300)  % R
+  (0.3000,0.6000)  % G
+  (0.1500,0.0600)} % B
+
+% CIE standard illuminant D65
+\def\whitepointLocus{
+  (0.3127,0.3290)}
+
+% Derived transformation matrix
+\def\XYZtoRGB{
+  { 3.2410}{-1.5374}{-0.4986}
+  {-0.9692}{ 1.8760}{ 0.0416}
+  { 0.0556}{-0.2040}{ 1.0570}}
+
+ % Linear color to gamma corrected transform
+\def\gammaCorrect{
+  dup 0.0031308 le                    % if < 0.0031308
+  {12.92 mul}                         % then linear transform
+  {1 2.4 div exp 1.055 mul -0.055 add}% else power transform
+  ifelse }
+
+% ------------------------------------------------------------- TYPE 4 HELPERS
+
+\def\scalarProduct#1#2#3{
+  #3 mul     exch
+  #2 mul add exch
+  #1 mul add }
+
+\def\applyMatrix#1#2#3#4#5#6#7#8#9{
+  3 copy 3 copy
+  \scalarProduct{#7}{#8}{#9} 7 1 roll
+  \scalarProduct{#4}{#5}{#6} 5 1 roll
+  \scalarProduct{#1}{#2}{#3} 3 1 roll }
+
+\def\xyYtoXYZ{                        % x y Y
+  3 copy 3 1 roll                     % x y Y Y x y
+  add neg 1 add mul 2 index div       % x y Y Y*(-(x+y)+1)/y=Z
+  4 1 roll                            % Z x y Y
+  dup                                 % Z x y Y Y=Y
+  5 1 roll                            % Y Z x y Y
+  3 2 roll                            % Y Z y Y x
+  mul exch div                        % Y Z Y*x/y=X
+  3 1 roll }                          % X Y Z
+
+\def\gammaCorrectVector{
+  \gammaCorrect 3 1 roll
+  \gammaCorrect 3 1 roll
+  \gammaCorrect 3 1 roll}
+
+% -------------------------------------------------------------------- DRAWING
+
+\begin{document}
+\begin{tikzpicture}
+
+% define colorspace shading size
+\def\l{360}%bp = 5in
+
+% define colorspace shading
+\pgfdeclarefunctionalshading{colorspace}
+  {\pgfpointorigin}{\pgfpoint{\l bp}{\l bp}}{}{
+    \l\space div exch \l\space div exch % x y   (chromaticity)
+    1.0                                 % x y Y (chromaticity+luminance)
+    \xyYtoXYZ                           % X Y Z (XYZ)
+    \expandafter\applyMatrix\XYZtoRGB   % R G B (sRGB linear)
+    \gammaCorrectVector }               % R G B (sRGB gamma corrected)
+
+% setup all pgfplots
+\pgfplotsset{
+  xmin=0, xmax=1, xtick=\empty, width=360bp, 
+  ymin=0, ymax=1, ytick=\empty, height=360bp,
+  axis line style={draw=none,},
+  scale only axis,
+  clip=false,
+  locus marks/.style={
+    line cap=rect,
+    only marks,
+    mark=*,
+    mark size=.5*\pgflinewidth,
+    mark options={line width=0},
+  },
+  planckian locus/.style={
+    line width=.5bp,
+    black,
+    locus marks,
+  },
+  spectral locus/.style={
+    line width=1bp,
+    white,
+    locus marks,
+  },
+}
+
+\tikzset{
+  colorspace grid/.style={
+    dash phase=1bp,
+    dash pattern=on 2bp off 4bp,
+    line width=1bp,
+    line cap=rect,
+    white!20!black,
+  },
+}
+
+% align everything to the shading
+\begin{scope} [shift={(-.5*\l bp,-.5*\l bp)}]
+
+  \begin{scope}[scale=360bp/1cm]
+    % black background and viewport
+    \fill [black] (-.1,-.1) rectangle (1.1,1.1);
+    % xy grid (better doing it manually, would be a mess with pgfplots)
+    \draw [colorspace grid, step=.1] grid (1,1);
+    % Smooth spectral locus contour for clipping
+    \clip [smooth] plot file {spectral.dat} -- cycle;
+    % sRGB color space
+    \pgfuseshading{colorspace}
+    % Reference primaries gamut
+    \fill [black, even odd rule, opacity=0.5]
+      rectangle +(1,1) plot coordinates {\primariesLoci} -- cycle;
+    % Standard illuminant mark
+    \draw [white!50!black, line width=.5bp] \whitepointLocus circle (1/360);
+  \end{scope}
+
+  \begin{axis}
+    % spectral locus
+    \addplot [spectral locus]
+      table {\SpectralLocus}
+      \foreach \n [evaluate=\n as \t using (\n-390)/5/62] in {450,460,...,650}{% nm
+        node [pos=\t,sloped,allow upside down] (X) {}
+        (X.center) -- ($(X.center)!3bp!(X.north)$)};
+    % planckian locus
+    \addplot [planckian locus]
+      table {\PlanckianLocus}
+      \foreach \n [evaluate=\n as \t using (\n-1)/39] in {1,2,...,12}{% kK
+        node [pos=\t,sloped,allow upside down] (X) {}
+        (X.center) -- ($(X.center)!3bp!(X.north)$) };
+  \end{axis}
+
+\end{scope}
+
+\end{tikzpicture}
+\end{document}
