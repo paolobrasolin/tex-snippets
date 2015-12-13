@@ -1,0 +1,93 @@
+\documentclass[tikz,border=18pt]{standalone}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{decorations.text}
+\usetikzlibrary{calc}
+
+\usepackage{fontspec}
+\newfontfamily\rimfont{DejaVu Serif}
+\newfontfamily\eptafont{DejaVu Sans Bold}
+\newfontfamily\symbolfont{Symbola}
+
+\let\sigil\relax
+
+\tikzset{
+  draw helper/.style={
+    draw, ultra thin, red,
+  },
+  eptagon/.style={
+    regular polygon,
+    regular polygon sides=7,
+    rotate=180,
+    name=#1,
+    node contents={}
+  },
+  draw eptagon/.style={
+    draw,
+    insert path=
+      {(#1.corner 1) \foreach \n in {3,5,7,2,4,6}{-- (#1.corner \n)} -- cycle},
+  },
+  inscribe rim/.style={
+    postaction={
+      decorate,
+      decoration={
+        raise=-.45em,
+        text along path,
+        text align=fit to path,
+        text={|\fontsize{12bp}{0pt}\rimfont|#1},},},},
+  maltese cross/.style={
+    insert path={ coordinate (#1)
+      (7.5*360/8:1bp) -- (0.0*360/8:4bp) -- (1.0*360/8:4bp) --
+      (1.5*360/8:1bp) -- (2.0*360/8:4bp) -- (3.0*360/8:4bp) --
+      (3.5*360/8:1bp) -- (4.0*360/8:4bp) -- (5.0*360/8:4bp) --
+      (5.5*360/8:1bp) -- (6.5*360/8:8bp) -- cycle},},
+}
+
+\begin{document}
+\begin{tikzpicture}
+
+  \draw [line width=1.4bp] (0,0)
+    \foreach \r [evaluate=\r] in {
+        70bp+7bp+2*\pgflinewidth,
+        70bp+7bp,
+        70bp-7bp,
+        70bp-7bp-2*\pgflinewidth}%
+      {circle(\r pt)};
+
+  \path [inscribe rim=%
+      {SIGILLVM SANCTVM FRATERNITATIS %
+      A{\symbolfont\raise.1em\hbox{∴}}A{\symbolfont\raise.1em\hbox{∴}}}]
+    (5/4*360/7:70bp) arc (5/4*360/7:9/4*360/7-360:70bp);
+
+  \node [eptagon=E, minimum size=98bp];
+  \path [draw eptagon=E, line width=5.6bp];
+
+  \foreach \l [count=\n, evaluate=\n as \a using -2*360/7-90-360*(\n-1)/7]
+        in {B,A,B,A,L,O,N}
+    \node [rotate=\a-90, font=\fontsize{8bp}{0}\eptafont]
+      at (\a:35bp+2.5bp) {\l};
+
+  \draw [line width=4.9bp] (0,{17.5bp*sin(2.5*360/7)})
+    arc ( 2.5*360/7:4.5*360/7:14bp+3.5bp) coordinate (A)
+    arc (-1.0*360/7:1.0*360/7:14bp+3.5bp)
+    arc ( 2.5*360/7:4.5*360/7:14bp+3.5bp);
+  \draw [line width=2.8bp] (-7bp,0) -- (7bp,0);
+
+  \fill [yshift= 17.5bp*   sin(2.5*360/7) +6bp, rotate=-0.5*360/8, maltese cross=A];
+  \fill [xshift= 17.5bp*(1+cos(2.5*360/7))+6bp, rotate=-2.5*360/8, maltese cross=B];
+  \fill [xshift=-17.5bp*(1+cos(2.5*360/7))-6bp, rotate= 1.5*360/8, maltese cross=C];
+
+  \begin{scope} [font=\fontsize{8bp}{0}\eptafont]
+    \node at ($(A)+(7bp,0)$) {7};
+    \node at ($(A)-(7bp,0)$) {7};
+    \node at ($(B)+(9.5bp,0)$) {77};
+    \node at ($(C)-(9.5bp,0)$) {77};
+    \node at (0,-21bp) {7};
+  \end{scope}
+
+  \draw [line width=1.4pt, yshift=70bp]
+    (0,0) circle (7bp)
+    ( 45:7pt) -- (225:7pt)
+    (135:7pt) -- (315:7pt);
+
+\end{tikzpicture}
+\end{document}
