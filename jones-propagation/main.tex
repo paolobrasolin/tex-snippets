@@ -1,0 +1,59 @@
+\documentclass[tikz,border=18bp]{standalone}
+\begin{document}
+\begin{tikzpicture}
+
+\begin{scope}[x=.1bp,y=.1bp,yshift=-60,xshift=-45]
+  \fill [black!90!white]
+  ( 847, 634) --
+  ( 805, 471) .. controls ( 687, 382) and ( 670, 376) .. 
+  ( 670, 319) .. controls ( 670, 356) and ( 655, 358) ..
+  ( 640, 351) .. controls ( 625, 344) and ( 617, 346) ..
+  ( 617, 302) .. controls ( 617, 338) and ( 602, 335) ..
+  ( 582, 332) .. controls ( 561, 329) and ( 542, 330) ..
+  ( 542, 288) .. controls ( 542, 326) and ( 517, 325) ..
+  ( 500, 323) .. controls ( 484, 320) and ( 460, 324) ..
+  ( 460, 284) .. controls ( 460, 321) and ( 446, 327) ..
+  ( 419, 325) .. controls ( 392, 324) and ( 378, 328) ..
+  ( 378, 285) .. controls ( 376, 317) and ( 358, 328) ..
+  ( 336, 334) .. controls ( 315, 339) and ( 293, 341) ..
+  ( 293, 283) .. controls ( 293, 340) and ( 288, 346) ..
+  ( 270, 346) .. controls ( 253, 346) and ( 239, 353) ..
+  ( 239, 308) .. controls ( 239, 364) and ( 226, 358) .. ( 105, 455) --
+  (  57, 604) --
+  (  53, 785) --
+  ( 158, 987) .. controls ( 158, 933) and ( 159, 891) ..
+  ( 183, 899) .. controls ( 206, 907) and ( 230, 907) ..
+  ( 230, 935) .. controls ( 230, 909) and ( 246, 904) ..
+  ( 280, 905) .. controls ( 314, 906) and ( 322, 908) ..
+  ( 322, 935) .. controls ( 322, 880) and ( 361, 890) ..
+  ( 393, 890) .. controls ( 425, 890) and ( 455, 891) ..
+  ( 455, 942) .. controls ( 470, 942) and ( 503, 906) ..
+  ( 503, 889) .. controls ( 538, 889) and ( 584, 882) ..
+  ( 584, 923) .. controls ( 584, 903) and ( 604, 895) ..
+  ( 628, 895) .. controls ( 652, 895) and ( 676, 903) ..
+  ( 676, 932) .. controls ( 676, 884) and ( 702, 883) ..
+  ( 727, 889) .. controls ( 753, 895) and ( 751, 944) .. ( 751,1000) --
+  ( 845, 846);
+  \fill [color=red!80!violet]
+  ( 455,1051) .. controls ( 744,1011) and ( 806,1004) ..
+  ( 806, 654) .. controls ( 806, 453) and ( 695, 207) ..
+  ( 465, 207) .. controls ( 299, 207) and (  87, 291) ..
+  (  87, 646) .. controls (  87,1014) and ( 241, 988) .. ( 455,1051)
+  ( 892, 655) .. controls ( 892, 883) and ( 984,1137) ..
+  ( 585,1244) .. controls ( 524,1260) and ( 485,1236) ..
+  ( 459,1221) .. controls ( 429,1237) and ( 383,1248) ..
+  ( 332,1235) .. controls ( 115,1176) and (   0,1102) ..
+  (   0, 665) .. controls ( 159,  71) and ( 215,   0) ..
+  ( 464,   0) .. controls ( 815,   0) and ( 799, 307) .. ( 892, 655);
+\end{scope}
+
+% bounding circle
+\path circle (5*72bp);
+
+% center
+%\fill [white] circle (2bp);
+
+\directlua{dofile('sound.lua')}
+
+\end{tikzpicture}
+\end{document}
